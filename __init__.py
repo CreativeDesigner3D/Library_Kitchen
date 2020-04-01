@@ -2,6 +2,9 @@ import bpy
 import os
 from .bp_lib import bp_utils
 from . import kitchen_ui
+from . import kitchen_props
+from . import kitchen_ops
+from . import data_cabinets
 
 bl_info = {
     "name": "Kitchen Library",
@@ -24,7 +27,7 @@ def register():
     lib.library_path = LIBRARY_PATH
     lib.panel_id = PANEL_ID
 
-    # bp_utils.load_library_items_from_module(lib,data_cabinets)
+    bp_utils.load_library_items_from_module(lib,data_cabinets)
 
 
 def unregister():
