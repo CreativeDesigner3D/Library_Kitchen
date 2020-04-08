@@ -34,17 +34,22 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
 
         # wall_thickness = self.assembly.get_prompt("Wall Thickness")
 
-        col = layout.column(align=True)
-        col.prop(self.assembly.obj_x,'location',index=0,text="Width")
-        col.prop(self.assembly.obj_y,'location',index=1,text="Depth")
-        col.prop(self.assembly.obj_z,'location',index=2,text="Height")
+        col = layout.column(align=False)
+        col.prop(self.cabinet.obj_x,'location',index=0,text="Width")
+        col.prop(self.cabinet.obj_y,'location',index=1,text="Depth")
+        col.prop(self.cabinet.obj_z,'location',index=2,text="Height")
 
         col = layout.column(align=True)
-        col.prop(self.assembly.obj_bp,'location',index=0,text="Location X")
-        col.prop(self.assembly.obj_bp,'location',index=1,text="Location Y")
-        col.prop(self.assembly.obj_bp,'location',index=2,text="Location Z")
+        col.prop(self.cabinet.obj_bp,'location',index=0,text="Location X")
+        col.prop(self.cabinet.obj_bp,'location',index=1,text="Location Y")
+        col.prop(self.cabinet.obj_bp,'location',index=2,text="Location Z")
 
         # wall_thickness.draw(layout)
 
-bpy.utils.register_class(KITCHEN_PT_library_settings)        
-bpy.utils.register_class(KITCHEN_OT_cabinet_prompts)     
+def register():
+    bpy.utils.register_class(KITCHEN_PT_library_settings)        
+    bpy.utils.register_class(KITCHEN_OT_cabinet_prompts)     
+
+def unregister():
+    bpy.utils.unregister_class(KITCHEN_PT_library_settings)        
+    bpy.utils.unregister_class(KITCHEN_OT_cabinet_prompts)        

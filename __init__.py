@@ -1,10 +1,12 @@
 import bpy
 import os
 from .bp_lib import bp_utils
+from . import kitchen_utils
 from . import kitchen_ui
 from . import kitchen_props
 from . import kitchen_ops
 from . import data_cabinets
+from bpy.app.handlers import persistent
 
 bl_info = {
     "name": "Kitchen Library",
@@ -21,16 +23,39 @@ bl_info = {
 LIBRARY_PATH = os.path.join(os.path.dirname(__file__),"library")
 PANEL_ID = 'KITCHEN_PT_library_settings'
 
+@persistent
+def load_library_on_file_load(scene=None):
+    libraries = bpy.context.window_manager.bp_lib.script_libraries
+    if "Kitchen Library" not in libraries:
+        lib = libraries.add()
+        lib.name = "Kitchen Library"
+        lib.library_path = LIBRARY_PATH
+        lib.panel_id = PANEL_ID
+
+        bp_utils.load_library_items_from_module(lib,data_cabinets)
+
+@persistent
+def load_material_pointers(scene=None):
+    kitchen_utils.write_xml_file()
+    kitchen_utils.update_props_from_xml_file()
+
 def register():
-    lib = bpy.context.window_manager.bp_lib.script_libraries.add()
-    lib.name = "Kitchen Library"
-    lib.library_path = LIBRARY_PATH
-    lib.panel_id = PANEL_ID
+    kitchen_props.register()
+    kitchen_ui.register()
+    kitchen_ops.register()
 
-    bp_utils.load_library_items_from_module(lib,data_cabinets)
-
+    load_library_on_file_load()
+    bpy.app.handlers.load_post.append(load_library_on_file_load)
+    bpy.app.handlers.load_post.append(load_material_pointers)
 
 def unregister():
+    kitchen_props.unregister()
+    kitchen_ui.unregister()
+    kitchen_ops.unregister()
+
+    bpy.app.handlers.load_post.remove(load_library_on_file_load)  
+    bpy.app.handlers.load_post.remove(load_material_pointers)  
+
     for i, lib in enumerate(bpy.context.window_manager.bp_lib.script_libraries):
         if lib.name == "Kitchen Library":
             bpy.context.window_manager.bp_lib.script_libraries.remove(i)

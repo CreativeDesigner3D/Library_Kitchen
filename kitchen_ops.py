@@ -192,4 +192,34 @@ class KITCHEN_OT_place_cabinet(bpy.types.Operator):
         context.area.tag_redraw()
         return {'FINISHED'}
 
-bpy.utils.register_class(KITCHEN_OT_place_cabinet)        
+
+class KITCHEN_OT_update_scene_materials(bpy.types.Operator):
+    bl_idname = "kitchen.update_scene_materials"
+    bl_label = "Update Scene Materials"
+    
+    def execute(self, context):
+        for obj in context.visible_objects:
+            print(obj)
+        return {'FINISHED'}
+
+
+class KITCHEN_OT_update_material_pointer(bpy.types.Operator):
+    bl_idname = "kitchen.update_material_pointer"
+    bl_label = "Update Material Pointer"
+    
+    pointer_name: bpy.props.StringProperty(name="Pointer Name")
+
+    def execute(self, context):
+        for obj in context.visible_objects:
+            print(obj)
+        return {'FINISHED'}
+
+def register():
+    bpy.utils.register_class(KITCHEN_OT_place_cabinet)        
+    bpy.utils.register_class(KITCHEN_OT_update_scene_materials)     
+    bpy.utils.register_class(KITCHEN_OT_update_material_pointer)     
+
+def unregister():    
+    bpy.utils.unregister_class(KITCHEN_OT_place_cabinet)        
+    bpy.utils.unregister_class(KITCHEN_OT_update_scene_materials)     
+    bpy.utils.unregister_class(KITCHEN_OT_update_material_pointer)         
