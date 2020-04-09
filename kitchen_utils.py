@@ -120,6 +120,18 @@ def add_bevel(assembly):
             bevel = child.modifiers.new('Bevel','BEVEL')    
             bevel.width = .0005            
 
+def update_side_material(assembly,is_finished_end):
+    for child in assembly.obj_bp.children:
+        if child.type == 'MESH':
+            for index, pointer in enumerate(child.material_pointer.slots):
+                if index == 1:
+                    if is_finished_end:
+                        pointer.name = "Exposed Cabinet Surfaces" 
+                    else:
+                        pointer.name = "Wood Core Surfaces"
+                    break
+    assign_materials_to_assembly(assembly)
+
 def assign_material_pointers(assembly):
     for child in assembly.obj_bp.children:
         if child.type == 'MESH':

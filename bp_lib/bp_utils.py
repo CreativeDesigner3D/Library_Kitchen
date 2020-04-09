@@ -46,6 +46,13 @@ def get_object_icon(obj):
     if obj.type == 'LIGHT_PROBE':
         return 'OUTLINER_OB_LIGHTPROBE'  
 
+def object_has_driver(obj):
+    """ If the object has a driver this function will return True otherwise False
+    """
+    if obj.animation_data:
+        if len(obj.animation_data.drivers) > 0:
+            return True
+
 def load_library_items_from_module(library,module):
     package_name, module_name = module.__name__.split(".")
     for name, obj in inspect.getmembers(module):

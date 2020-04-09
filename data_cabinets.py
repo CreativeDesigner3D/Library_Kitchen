@@ -52,6 +52,8 @@ class Test_Cabinet(bp_types.Assembly):
         self.obj_y.location.y = -props.base_cabinet_depth
         self.obj_z.location.z = props.base_cabinet_height
 
+        self.obj_y['IS_MIRROR'] = True
+
         width = self.obj_x.drivers.get_var('location.x','width')
         depth = self.obj_y.drivers.get_var('location.y','depth')
         height = self.obj_z.drivers.get_var('location.z','height')

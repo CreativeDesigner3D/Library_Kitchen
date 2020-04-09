@@ -29,6 +29,8 @@ class Standard(bp_types.Assembly):
         toe_kick_setback.set_value(bp_unit.inch(3.25))
         material_thickness = self.obj_prompts.prompt_page.add_prompt('DISTANCE',"Material Thickness")
         material_thickness.set_value(bp_unit.inch(.75))
+        run_sides_to_floor = self.obj_prompts.prompt_page.add_prompt('CHECKBOX',"Run Sides to Floor")
+        run_sides_to_floor.set_value(bp_unit.inch(.75))
 
         toe_kick_height = toe_kick_height.get_var("toe_kick_height")
         toe_kick_setback = toe_kick_setback.get_var("toe_kick_setback")
@@ -105,6 +107,8 @@ class Standard2(bp_types.Assembly):
 
         self.create_assembly("Carcass")
 
+        self.obj_bp["IS_CARCASS_BP"] = True
+
         self.obj_x.location.x = bp_unit.inch(18) 
         self.obj_y.location.y = -props.base_cabinet_depth
         self.obj_z.location.z = props.base_cabinet_height
@@ -113,12 +117,12 @@ class Standard2(bp_types.Assembly):
         depth = self.obj_y.drivers.get_var('location.y','depth')
         height = self.obj_z.drivers.get_var('location.z','height')
 
-        toe_kick_height = self.obj_prompts.prompt_page.add_prompt('DISTANCE',"Toe Kick Height")
-        toe_kick_height.set_value(bp_unit.inch(4))
-        toe_kick_setback = self.obj_prompts.prompt_page.add_prompt('DISTANCE',"Toe Kick Setback")
-        toe_kick_setback.set_value(bp_unit.inch(3.25))
-        material_thickness = self.obj_prompts.prompt_page.add_prompt('DISTANCE',"Material Thickness")
-        material_thickness.set_value(bp_unit.inch(.75))
+        left_finished_end = self.add_prompt("Left Finished End",'CHECKBOX',False)
+        right_finished_end = self.add_prompt("Right Finished End",'CHECKBOX',False)
+        run_sides_to_floor = self.add_prompt("Run Sides to Floor",'CHECKBOX',True)
+        toe_kick_height = self.add_prompt("Toe Kick Height",'DISTANCE',bp_unit.inch(4))
+        toe_kick_setback = self.add_prompt("Toe Kick Setback",'DISTANCE',bp_unit.inch(3.25))
+        material_thickness = self.add_prompt("Material Thickness",'DISTANCE',bp_unit.inch(.75))
 
         toe_kick_height = toe_kick_height.get_var("toe_kick_height")
         toe_kick_setback = toe_kick_setback.get_var("toe_kick_setback")
@@ -144,6 +148,7 @@ class Standard2(bp_types.Assembly):
         top.dim_z('-material_thickness',[material_thickness])
 
         left_side = data_cabinet_parts.add_rectangular_part(self)
+        left_side.obj_bp["IS_LEFT_SIDE_BP"] = True
         left_side.set_name('Left Side')
         left_side.loc_x(value=0)
         left_side.loc_y(value=0)
@@ -154,7 +159,8 @@ class Standard2(bp_types.Assembly):
         left_side.dim_z('-material_thickness',[material_thickness])
 
         right_side = data_cabinet_parts.add_rectangular_part(self)
-        right_side.set_name('Left Side')
+        right_side.obj_bp["IS_RIGHT_SIDE_BP"] = True
+        right_side.set_name('Right Side')
         right_side.loc_x('width',[width])
         right_side.loc_y(value=0)
         right_side.loc_z(value=0)

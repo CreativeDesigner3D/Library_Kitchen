@@ -138,6 +138,11 @@ class Assembly:
         self.obj_prompts["obj_prompts"] = True
         self.coll.objects.link(self.obj_prompts)
 
+    def add_prompt(self,name,prompt_type,value):
+        prompt = self.obj_prompts.prompt_page.add_prompt(prompt_type,name)
+        prompt.set_value(value)
+        return prompt
+
     def add_empty(self,obj_name):
         obj = bpy.data.objects.new(obj_name,None)
         obj.location = (0,0,0)
