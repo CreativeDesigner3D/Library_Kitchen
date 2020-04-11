@@ -34,6 +34,7 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
 
     cabinet = None
     carcass = None
+    countertop = None
     doors = None
     interior = None
 
@@ -61,6 +62,10 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
 
     def check(self, context):
         self.update_product_size()
+        print('X',self.countertop.obj_x.location.x)
+        self.countertop.obj_bp.location = self.countertop.obj_bp.location
+        self.countertop.obj_x.location = self.countertop.obj_x.location
+        self.countertop.obj_y.location = self.countertop.obj_y.location
         self.update_materials(context)
         return True
 
@@ -70,9 +75,13 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
     def get_assemblies(self,context):
         for child in self.cabinet.obj_bp.children:
             if "IS_CARCASS_BP" in child and child["IS_CARCASS_BP"]:
-                self.carcass = bp_types.Assembly(child)
+                self.carcass = bp_types.Assembly(child)      
             if "IS_INTERIOR_BP" in child and child["IS_INTERIOR_BP"]:
-                self.interior = bp_types.Assembly(child)                
+                self.interior = bp_types.Assembly(child)              
+            if "IS_EXTERIOR_BP" in child and child["IS_EXTERIOR_BP"]:
+                self.exterior = bp_types.Assembly(child)                     
+            if "IS_COUNTERTOP_BP" in child and child["IS_COUNTERTOP_BP"]:
+                self.countertop = bp_types.Assembly(child)   
 
         for child in self.carcass.obj_bp.children:
             if "IS_LEFT_SIDE_BP" in child and child["IS_LEFT_SIDE_BP"]:
@@ -143,8 +152,24 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
         left_finished_end = self.carcass.get_prompt("Left Finished End")
         right_finished_end = self.carcass.get_prompt("Right Finished End")
 
+        toe_kick_height = self.carcass.get_prompt("Toe Kick Height")
+        toe_kick_setback = self.carcass.get_prompt("Toe Kick Setback")
+
         left_finished_end.draw(layout)
         right_finished_end.draw(layout)
+        toe_kick_height.draw(layout)
+        toe_kick_setback.draw(layout)
+
+    def draw_countertop_prompts(self,layout,context):
+        ctop_front = self.cabinet.get_prompt("Countertop Overhang Front")
+        ctop_back = self.cabinet.get_prompt("Countertop Overhang Back")
+        ctop_left = self.cabinet.get_prompt("Countertop Overhang Left")
+        ctop_right = self.cabinet.get_prompt("Countertop Overhang Right")
+
+        ctop_front.draw(layout)
+        ctop_back.draw(layout)       
+        ctop_left.draw(layout)  
+        ctop_right.draw(layout)         
 
     def draw(self, context):
         layout = self.layout
@@ -159,6 +184,7 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
 
         if self.product_tabs == 'CARCASS':
             self.draw_carcass_prompts(prompt_box,context)
+            self.draw_countertop_prompts(prompt_box,context)
 
 
 def register():

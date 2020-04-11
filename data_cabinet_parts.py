@@ -77,6 +77,13 @@ class Extruded_Part(bp_types.Assembly):
     prompt_id = "room.part_prompts"
     placement_id = "room.draw_multiple_walls"            
 
+def add_countertop_part(assembly):
+    part = bp_types.Assembly(assembly.add_assembly_from_file(PART))
+    assembly.add_assembly(part)
+    kitchen_utils.add_bevel(part)
+    kitchen_utils.assign_countertop_pointers(part)
+    kitchen_utils.assign_materials_to_assembly(part)
+    return part
 
 def add_rectangular_part(assembly):
     part = bp_types.Assembly(assembly.add_assembly_from_file(PART))

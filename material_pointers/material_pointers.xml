@@ -42,8 +42,8 @@
 	</MaterialPointer>
 	<MaterialPointer>
 		<Name>Countertop Surface</Name>
-		<Category>Wood Colors</Category>
-		<Material>Autumn Leaves</Material>
+		<Category>Stone</Category>
+		<Material>Midnight Granite</Material>
 	</MaterialPointer>
 	<MaterialPointer>
 		<Name>Drawer Box Surface</Name>

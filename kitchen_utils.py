@@ -61,7 +61,7 @@ def get_default_material_pointers():
     pointers.append(("Interior Cabinet Edges","Wood Colors","Autumn Leaves"))
     pointers.append(("Door Surface","Wood Colors","Autumn Leaves"))
     pointers.append(("Door Edge","Wood Colors","Autumn Leaves"))
-    pointers.append(("Countertop Surface","Wood Colors","Autumn Leaves"))
+    pointers.append(("Countertop Surface","Stone","Midnight Granite"))
     pointers.append(("Drawer Box Surface","Wood Colors","Autumn Leaves"))
     pointers.append(("Drawer Box Edge","Wood Colors","Autumn Leaves"))
     pointers.append(("Pull Finish","Metal","Polished Chrome"))
@@ -131,6 +131,12 @@ def update_side_material(assembly,is_finished_end):
                         pointer.name = "Wood Core Surfaces"
                     break
     assign_materials_to_assembly(assembly)
+
+def assign_countertop_pointers(assembly):
+    for child in assembly.obj_bp.children:
+        if child.type == 'MESH':
+            for index, pointer in enumerate(child.material_pointer.slots):  
+                pointer.name = "Countertop Surface"  
 
 def assign_material_pointers(assembly):
     for child in assembly.obj_bp.children:
