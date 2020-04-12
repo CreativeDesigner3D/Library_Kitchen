@@ -2,8 +2,10 @@ from .bp_lib import bp_types, bp_unit, bp_utils
 from . import data_cabinet_parts
 from . import data_cabinet_carcass
 from . import data_countertops
+from . import data_cabinet_doors
 from . import kitchen_utils
 import time
+import math
 
 class Base_Cabinet(bp_types.Assembly):
     show_in_library = True
@@ -76,6 +78,9 @@ class Test_Cabinet(bp_types.Assembly):
         carcass.dim_y('depth',[depth])
         carcass.dim_z('height',[height])       
 
+        material_thickness = carcass.get_prompt('Material Thickness').get_var('material_thickness')
+        toe_kick_height = carcass.get_prompt('Toe Kick Height').get_var('toe_kick_height')
+
         countertop = self.add_assembly(data_countertops.Countertop())
         countertop.set_name('Countertop')
         countertop.loc_x('-ctop_overhang_left',[ctop_overhang_left])
@@ -85,7 +90,15 @@ class Test_Cabinet(bp_types.Assembly):
         countertop.dim_y('depth-(ctop_overhang_front+ctop_overhang_back)',[depth,ctop_overhang_front,ctop_overhang_back])
         countertop.dim_z(value=.1)
 
-
+        door = self.add_assembly(data_cabinet_doors.Door())
+        door.set_name('Door')
+        door.loc_x('material_thickness',[material_thickness])
+        door.loc_y('depth',[depth])
+        door.loc_z('toe_kick_height+material_thickness',[toe_kick_height,material_thickness])
+        door.dim_x('width-(material_thickness*2)',[width,material_thickness])
+        door.dim_y('depth',[depth])
+        door.dim_z('height-toe_kick_height-(material_thickness*2)',[height,toe_kick_height,material_thickness])
+        kitchen_utils.flip_normals(door)
 
         print("Test_Cabinet: Draw Time --- %s seconds ---" % (time.time() - start_time))
 

@@ -85,6 +85,22 @@ def add_countertop_part(assembly):
     kitchen_utils.assign_materials_to_assembly(part)
     return part
 
+def add_door_part(assembly):
+    part = bp_types.Assembly(assembly.add_assembly_from_file(PART))
+    assembly.add_assembly(part)
+    kitchen_utils.add_bevel(part)
+    kitchen_utils.assign_door_pointers(part)
+    kitchen_utils.assign_materials_to_assembly(part)
+    return part
+
+def add_carcass_part(assembly):
+    part = bp_types.Assembly(assembly.add_assembly_from_file(PART))
+    assembly.add_assembly(part)
+    kitchen_utils.add_bevel(part)
+    kitchen_utils.assign_material_pointers(part)
+    kitchen_utils.assign_materials_to_assembly(part)
+    return part
+
 def add_rectangular_part(assembly):
     part = bp_types.Assembly(assembly.add_assembly_from_file(PART))
     assembly.add_assembly(part)

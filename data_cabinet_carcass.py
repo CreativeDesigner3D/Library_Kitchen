@@ -128,7 +128,7 @@ class Standard2(bp_types.Assembly):
         toe_kick_setback = toe_kick_setback.get_var("toe_kick_setback")
         material_thickness = material_thickness.get_var("material_thickness")
 
-        bottom = data_cabinet_parts.add_rectangular_part(self)
+        bottom = data_cabinet_parts.add_carcass_part(self)
         bottom.set_name('Bottom')
         bottom.loc_x('material_thickness',[material_thickness])
         bottom.loc_y(value=0)
@@ -138,7 +138,7 @@ class Standard2(bp_types.Assembly):
         bottom.dim_z('material_thickness',[material_thickness])
         kitchen_utils.flip_normals(bottom)
 
-        top = data_cabinet_parts.add_rectangular_part(self)
+        top = data_cabinet_parts.add_carcass_part(self)
         top.set_name('Top')
         top.loc_x('material_thickness',[material_thickness])
         top.loc_y(value=0)
@@ -147,7 +147,7 @@ class Standard2(bp_types.Assembly):
         top.dim_y('depth',[depth])
         top.dim_z('-material_thickness',[material_thickness])
 
-        left_side = data_cabinet_parts.add_rectangular_part(self)
+        left_side = data_cabinet_parts.add_carcass_part(self)
         left_side.obj_bp["IS_LEFT_SIDE_BP"] = True
         left_side.set_name('Left Side')
         left_side.loc_x(value=0)
@@ -158,7 +158,7 @@ class Standard2(bp_types.Assembly):
         left_side.dim_y('depth',[depth])
         left_side.dim_z('-material_thickness',[material_thickness])
 
-        right_side = data_cabinet_parts.add_rectangular_part(self)
+        right_side = data_cabinet_parts.add_carcass_part(self)
         right_side.obj_bp["IS_RIGHT_SIDE_BP"] = True
         right_side.set_name('Right Side')
         right_side.loc_x('width',[width])
@@ -170,7 +170,7 @@ class Standard2(bp_types.Assembly):
         right_side.dim_z('material_thickness',[material_thickness])
         kitchen_utils.flip_normals(right_side)
 
-        back = data_cabinet_parts.add_rectangular_part(self)
+        back = data_cabinet_parts.add_carcass_part(self)
         back.set_name('Back')
         back.loc_x('width-material_thickness',[width,material_thickness])
         back.loc_y(value=0)
@@ -181,7 +181,7 @@ class Standard2(bp_types.Assembly):
         back.dim_y('width-(material_thickness*2)',[width,material_thickness])
         back.dim_z('material_thickness',[material_thickness])
 
-        toe_kick = data_cabinet_parts.add_rectangular_part(self)
+        toe_kick = data_cabinet_parts.add_carcass_part(self)
         toe_kick.set_name('Toe Kick')
         toe_kick.loc_x('material_thickness',[material_thickness])
         toe_kick.loc_y('depth+toe_kick_setback',[depth,toe_kick_setback])

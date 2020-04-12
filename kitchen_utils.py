@@ -138,6 +138,23 @@ def assign_countertop_pointers(assembly):
             for index, pointer in enumerate(child.material_pointer.slots):  
                 pointer.name = "Countertop Surface"  
 
+def assign_door_pointers(assembly):
+    for child in assembly.obj_bp.children:
+        if child.type == 'MESH':
+            for index, pointer in enumerate(child.material_pointer.slots):
+                if pointer.name == 'Top':
+                    pointer.name = "Door Surface"
+                if pointer.name == 'Bottom':
+                    pointer.name = "Door Surface"
+                if pointer.name == 'L1':
+                    pointer.name = "Door Edge"
+                if pointer.name == 'L2':
+                    pointer.name = "Door Edge"
+                if pointer.name == 'W1':
+                    pointer.name = "Door Edge"
+                if pointer.name == 'W2':
+                    pointer.name = "Door Edge"        
+
 def assign_material_pointers(assembly):
     for child in assembly.obj_bp.children:
         if child.type == 'MESH':
