@@ -11,6 +11,12 @@ def get_cabinet_bp(obj):
     elif obj.parent:
         return get_cabinet_bp(obj.parent)
 
+def get_wall_bp(obj):
+    if "IS_WALL_BP" in obj:
+        return obj
+    elif obj.parent:
+        return get_wall_bp(obj.parent)
+
 def flip_normals(assembly):
     for child in assembly.obj_bp.children:
         if child.type == 'MESH':
@@ -21,13 +27,14 @@ def flip_normals(assembly):
 def get_material_path():
     return os.path.join(os.path.dirname(__file__),'assets','Materials') 
 
+def get_pull_path():
+    return os.path.join(os.path.dirname(__file__),'assets','Cabinet Pulls') 
+
 def get_material(category,material_name):
     if material_name in bpy.data.materials:
         return bpy.data.materials[material_name]
 
     material_path = os.path.join(get_material_path(),category,material_name + ".blend")
-
-    print('PATH',material_path)
 
     if os.path.exists(material_path):
 
@@ -40,16 +47,32 @@ def get_material(category,material_name):
         for mat in data_to.materials:
             return mat
 
-def assign_materials_to_assembly(assembly):
-    props = get_kitchen_scene_props()
+def get_pull(category,pull_name):
+    pull_path = os.path.join(get_pull_path(),category,pull_name + ".blend")
 
+    if os.path.exists(pull_path):
+
+        with bpy.data.libraries.load(pull_path, False, False) as (data_from, data_to):
+            for obj in data_from.objects:
+                if obj == pull_name:
+                    data_to.objects = [obj]
+                    break    
+        
+        for obj in data_to.objects:
+            return obj
+
+def assign_materials_to_object(obj):
+    props = get_kitchen_scene_props()
+    for index, pointer in enumerate(obj.material_pointer.slots):
+        if index <= len(obj.material_slots) and pointer.name in props.material_pointers:
+            p = props.material_pointers[pointer.name]
+            slot = obj.material_slots[index]
+            slot.material = get_material(p.category,p.item_name)
+
+def assign_materials_to_assembly(assembly):
     for child in assembly.obj_bp.children:
         if child.type == 'MESH':
-            for index, pointer in enumerate(child.material_pointer.slots):
-                if index <= len(child.material_slots) and pointer.name in props.material_pointers:
-                    p = props.material_pointers[pointer.name]
-                    slot = child.material_slots[index]
-                    slot.material = get_material(p.category,p.material_name)
+            assign_materials_to_object(child)
 
 def get_default_material_pointers():
     pointers = []
@@ -67,6 +90,14 @@ def get_default_material_pointers():
     pointers.append(("Pull Finish","Metal","Polished Chrome"))
     pointers.append(("Glass","Misc","Glass"))
     pointers.append(("Molding","Wood Colors","Autumn Leaves"))
+    return pointers
+
+def get_default_pull_pointers():
+    pointers = []
+    pointers.append(("Base Cabinet Pulls","Decorative Pulls","Americana Handle"))
+    pointers.append(("Tall Cabinet Pulls","Decorative Pulls","Americana Handle"))
+    pointers.append(("Upper Cabinet Pulls","Decorative Pulls","Americana Handle"))
+    pointers.append(("Drawer Pulls","Decorative Pulls","Americana Handle"))
     return pointers
 
 def get_xml_path():
@@ -112,7 +143,7 @@ def update_props_from_xml_file():
                 if item.tag == 'Category':
                     pointer.category = item.text
                 if item.tag == 'Material':
-                    pointer.material_name = item.text          
+                    pointer.item_name = item.text          
 
 def add_bevel(assembly):
     for child in assembly.obj_bp.children:
@@ -131,6 +162,12 @@ def update_side_material(assembly,is_finished_end):
                         pointer.name = "Wood Core Surfaces"
                     break
     assign_materials_to_assembly(assembly)
+
+def assign_pull_pointers(assembly):
+    for child in assembly.obj_bp.children:
+        if child.type == 'MESH':
+            for index, pointer in enumerate(child.material_pointer.slots):  
+                pointer.name = "Countertop Surface"  
 
 def assign_countertop_pointers(assembly):
     for child in assembly.obj_bp.children:

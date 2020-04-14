@@ -147,7 +147,7 @@ class Assembly:
         obj = bpy.data.objects.new(obj_name,None)
         obj.location = (0,0,0)
         obj.parent = self.obj_bp
-        self.coll.objects.link(obj)
+        # self.coll.objects.link(obj)
         return obj
 
     def add_object(self,obj):
