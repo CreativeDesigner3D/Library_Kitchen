@@ -13,9 +13,11 @@ class KITCHEN_OT_place_cabinet(bpy.types.Operator):
     obj_bp_name: bpy.props.StringProperty(name="Obj Base Point Name")
     
     cabinet = None
+    selected_cabinet = None
 
     drawing_plane = None
 
+    next_wall = None
     current_wall = None
     previous_wall = None
 
@@ -36,6 +38,57 @@ class KITCHEN_OT_place_cabinet(bpy.types.Operator):
         context.window_manager.modal_handler_add(self)
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
+
+    def position_cabinet(self,mouse_location,selected_obj):
+        cabinet_bp = kitchen_utils.get_cabinet_bp(selected_obj)
+        wall_bp = kitchen_utils.get_wall_bp(selected_obj)
+        if cabinet_bp:
+            self.selected_cabinet = bp_types.Assembly(cabinet_bp)
+            sel_cabinet_world_loc = (self.selected_cabinet.obj_bp.matrix_world[0][3],
+                                     self.selected_cabinet.obj_bp.matrix_world[1][3],
+                                     self.selected_cabinet.obj_bp.matrix_world[2][3])
+            
+            sel_cabinet_x_world_loc = (self.selected_cabinet.obj_x.matrix_world[0][3],
+                                       self.selected_cabinet.obj_x.matrix_world[1][3],
+                                       self.selected_cabinet.obj_x.matrix_world[2][3])
+            print('MOUSE',mouse_location)
+            print('BP,X',sel_cabinet_world_loc,sel_cabinet_x_world_loc)
+
+            dist_to_bp = bp_utils.calc_distance(mouse_location,sel_cabinet_world_loc)
+            dist_to_x = bp_utils.calc_distance(mouse_location,sel_cabinet_x_world_loc)
+            rot = self.selected_cabinet.obj_bp.rotation_euler.z
+            x_loc = 0
+            y_loc = 0
+
+            if wall_bp:
+                rot += wall.obj_bp.rotation_euler.z      
+            print('DIST',dist_to_bp,dist_to_x)
+            if dist_to_bp < dist_to_x:
+                print('LEFT')
+                #LEFT
+                add_x_loc = 0
+                add_y_loc = 0
+                # if sel_product.obj_bp.mv.placement_type == 'Corner':
+                #     rot += math.radians(90)
+                #     add_x_loc = math.cos(rot) * sel_product.obj_y.location.y
+                #     add_y_loc = math.sin(rot) * sel_product.obj_y.location.y
+                x_loc = self.selected_cabinet.obj_bp.matrix_world[0][3] - math.cos(rot) * self.cabinet.obj_x.location.x + add_x_loc
+                y_loc = self.selected_cabinet.obj_bp.matrix_world[1][3] - math.sin(rot) * self.cabinet.obj_x.location.x + add_y_loc
+
+            else:
+                print('RIGHT')
+                #RIGHT
+                x_loc = self.selected_cabinet.obj_bp.matrix_world[0][3] + math.cos(rot) * self.selected_cabinet.obj_x.location.x
+                y_loc = self.selected_cabinet.obj_bp.matrix_world[1][3] + math.sin(rot) * self.selected_cabinet.obj_x.location.x
+
+            self.cabinet.obj_bp.rotation_euler.z = rot
+            self.cabinet.obj_bp.location.x = x_loc
+            self.cabinet.obj_bp.location.y = y_loc
+
+        elif wall_bp:
+            pass
+        else:
+            self.cabinet.obj_bp.location = mouse_location
 
     def get_cabinet(self,context):
         self.exclude_objects = []
@@ -93,7 +146,8 @@ class KITCHEN_OT_place_cabinet(bpy.types.Operator):
 
         selected_point, selected_obj = bp_utils.get_selection_point(context,event,exclude_objects=self.exclude_objects)
 
-        self.position_object(selected_point,selected_obj)
+        self.position_cabinet(selected_point,selected_obj)
+        # self.position_object(selected_point,selected_obj)
         # self.set_end_angles()            
 
         if self.event_is_place_first_point(event):
@@ -171,16 +225,8 @@ class KITCHEN_OT_place_cabinet(bpy.types.Operator):
         self.cabinet.obj_bp.location = selected_point
 
     def cancel_drop(self,context):
-        if self.previous_wall:
-            prev_right_angle = self.previous_wall.get_prompt("Right Angle") 
-            prev_right_angle.set_value(0)
-
-        obj_list = []
-        obj_list.append(self.drawing_plane)
-        obj_list.append(self.cabinet.obj_bp)
-        for child in self.cabinet.obj_bp.children:
-            obj_list.append(child)
-        bp_utils.delete_obj_list(obj_list)
+        bp_utils.delete_object_and_children(self.cabinet.obj_bp)
+        bp_utils.delete_object_and_children(self.drawing_plane)
         return {'CANCELLED'}
 
     def finish(self,context):
@@ -214,12 +260,38 @@ class KITCHEN_OT_update_material_pointer(bpy.types.Operator):
             print(obj)
         return {'FINISHED'}
 
+
+class KITCHEN_OT_update_scene_pulls(bpy.types.Operator):
+    bl_idname = "kitchen.update_scene_pulls"
+    bl_label = "Update Scene Pulls"
+    
+    def execute(self, context):
+        for obj in context.visible_objects:
+            print(obj)
+        return {'FINISHED'}
+
+
+class KITCHEN_OT_update_pull_pointer(bpy.types.Operator):
+    bl_idname = "kitchen.update_pull_pointer"
+    bl_label = "Update Pull Pointer"
+    
+    pointer_name: bpy.props.StringProperty(name="Pointer Name")
+
+    def execute(self, context):
+        for obj in context.visible_objects:
+            print(obj)
+        return {'FINISHED'}
+
 def register():
     bpy.utils.register_class(KITCHEN_OT_place_cabinet)        
     bpy.utils.register_class(KITCHEN_OT_update_scene_materials)     
-    bpy.utils.register_class(KITCHEN_OT_update_material_pointer)     
+    bpy.utils.register_class(KITCHEN_OT_update_material_pointer)   
+    bpy.utils.register_class(KITCHEN_OT_update_scene_pulls) 
+    bpy.utils.register_class(KITCHEN_OT_update_pull_pointer)   
 
 def unregister():    
     bpy.utils.unregister_class(KITCHEN_OT_place_cabinet)        
     bpy.utils.unregister_class(KITCHEN_OT_update_scene_materials)     
-    bpy.utils.unregister_class(KITCHEN_OT_update_material_pointer)         
+    bpy.utils.unregister_class(KITCHEN_OT_update_material_pointer)      
+    bpy.utils.unregister_class(KITCHEN_OT_update_scene_pulls)  
+    bpy.utils.unregister_class(KITCHEN_OT_update_pull_pointer)     
