@@ -62,7 +62,6 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
 
     def check(self, context):
         self.update_product_size()
-        print('X',self.countertop.obj_x.location.x)
         self.countertop.obj_bp.location = self.countertop.obj_bp.location
         self.countertop.obj_x.location = self.countertop.obj_x.location
         self.countertop.obj_y.location = self.countertop.obj_y.location
@@ -136,13 +135,18 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
             row1.prop(self,'depth',text="")
             row1.prop(self.cabinet.obj_y,'hide_viewport',text="")
             
-        col = row.column(align=True)
-        col.label(text="Location X:")
-        col.label(text="Location Y:")
-        col.label(text="Location Z:")
+        if len(self.cabinet.obj_bp.constraints) > 0:
+            col = row.column(align=True)
+            col.label(text="Location:")
+            col.operator('kitchen.disconnect_cabinet_constraint',text='Disconnect Constraint',icon='CONSTRAINT').obj_name = self.cabinet.obj_bp.name
+        else:
+            col = row.column(align=True)
+            col.label(text="Location X:")
+            col.label(text="Location Y:")
+            col.label(text="Location Z:")
         
-        col = row.column(align=True)
-        col.prop(self.cabinet.obj_bp,'location',text="")
+            col = row.column(align=True)
+            col.prop(self.cabinet.obj_bp,'location',text="")
         
         row = box.row()
         row.label(text='Rotation Z:')
