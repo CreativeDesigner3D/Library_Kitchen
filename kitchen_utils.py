@@ -208,3 +208,12 @@ def assign_material_pointers(assembly):
                     pointer.name = "Wood Core Edges"
                 if pointer.name == 'W2':
                     pointer.name = "Wood Core Edges"                                
+
+def assign_boolean(assembly,obj_mesh):
+    for child in assembly.obj_bp.children:
+        if child.type == 'MESH':       
+            mod = child.modifiers.new(obj_mesh.name,'BOOLEAN')
+            mod.object = obj_mesh
+            mod.operation = 'DIFFERENCE'    
+    obj_mesh.hide_viewport = True
+    obj_mesh.display_type = 'WIRE'                            

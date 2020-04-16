@@ -2,6 +2,7 @@ import math
 from .bp_lib import bp_types, bp_unit, bp_utils
 from . import data_cabinet_parts
 from . import kitchen_utils
+from . import common_prompts
 
 from os import path
 
@@ -10,32 +11,16 @@ class Door(bp_types.Assembly):
     prompt_id = "room.part_prompts"
     placement_id = "room.draw_multiple_walls"
 
-    def add_prompts(self):
-        self.add_prompt("Door Rotation",'ANGLE',0)
-        self.add_prompt("Open Door",'PERCENTAGE',0)
-        self.add_prompt("Inset Front",'CHECKBOX',False)
-        self.add_prompt("Inset Reveal",'DISTANCE',bp_unit.inch(.125))
-        self.add_prompt("Door to Cabinet Gap",'DISTANCE',bp_unit.inch(.125))
-        self.add_prompt("Front Thickness",'DISTANCE',bp_unit.inch(.75))
-
-    def add_front_overlay_prompts(self):
-        self.add_prompt("Top Overlay",'DISTANCE',bp_unit.inch(.6875))
-        self.add_prompt("Bottom Overlay",'DISTANCE',bp_unit.inch(.6875))
-        self.add_prompt("Left Overlay",'DISTANCE',bp_unit.inch(.6875))
-        self.add_prompt("Right Overlay",'DISTANCE',bp_unit.inch(.6875))
-
-    def add_pull_prompts(self):
-        self.add_prompt("Pull Vertical Location",'DISTANCE',bp_unit.inch(1.5))
-        self.add_prompt("Pull Horizontal Location",'DISTANCE',bp_unit.inch(2))
-        
     def draw(self):
         props = kitchen_utils.get_kitchen_scene_props()
 
         self.create_assembly("Door")
-        self.add_prompts()
-        self.add_front_overlay_prompts()
-        self.add_pull_prompts()
         self.obj_bp["IS_DOOR_BP"] = True
+
+        common_prompts.add_door_prompts(self)
+        common_prompts.add_front_prompts(self)
+        common_prompts.add_front_overlay_prompts(self)
+        common_prompts.add_pull_prompts(self)
 
         x = self.obj_x.drivers.get_var('location.x','x')
         y = self.obj_y.drivers.get_var('location.y','y')
@@ -58,7 +43,8 @@ class Door(bp_types.Assembly):
         door.rot_y(value = math.radians(-90))
         door.dim_x('z+top_overlay+bottom_overlay',[z,top_overlay,bottom_overlay])
         door.dim_y('(x+left_overlay+right_overlay)*-1',[x,left_overlay,right_overlay])
-        door.dim_z('front_thickness',[front_thickness])        
+        door.dim_z('front_thickness',[front_thickness])      
+        kitchen_utils.flip_normals(door)  
 
         pull_obj = kitchen_utils.get_pull(props.pull_category,props.pull_name)
         self.add_object(pull_obj)

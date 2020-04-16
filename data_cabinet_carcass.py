@@ -2,6 +2,7 @@ import math
 from .bp_lib import bp_types, bp_unit, bp_utils
 from . import data_cabinet_parts
 from . import kitchen_utils
+from . import common_prompts
 
 from os import path
 
@@ -106,8 +107,9 @@ class Standard2(bp_types.Assembly):
         props = kitchen_utils.get_kitchen_scene_props()
 
         self.create_assembly("Carcass")
-
         self.obj_bp["IS_CARCASS_BP"] = True
+
+        common_prompts.add_carcass_prompts(self)
 
         self.obj_x.location.x = bp_unit.inch(18) 
         self.obj_y.location.y = -props.base_cabinet_depth
@@ -117,16 +119,10 @@ class Standard2(bp_types.Assembly):
         depth = self.obj_y.drivers.get_var('location.y','depth')
         height = self.obj_z.drivers.get_var('location.z','height')
 
-        left_finished_end = self.add_prompt("Left Finished End",'CHECKBOX',False)
-        right_finished_end = self.add_prompt("Right Finished End",'CHECKBOX',False)
-        run_sides_to_floor = self.add_prompt("Run Sides to Floor",'CHECKBOX',True)
-        toe_kick_height = self.add_prompt("Toe Kick Height",'DISTANCE',bp_unit.inch(4))
-        toe_kick_setback = self.add_prompt("Toe Kick Setback",'DISTANCE',bp_unit.inch(3.25))
-        material_thickness = self.add_prompt("Material Thickness",'DISTANCE',bp_unit.inch(.75))
-
-        toe_kick_height = toe_kick_height.get_var("toe_kick_height")
-        toe_kick_setback = toe_kick_setback.get_var("toe_kick_setback")
-        material_thickness = material_thickness.get_var("material_thickness")
+        toe_kick_height = self.get_prompt("Toe Kick Height").get_var("toe_kick_height")
+        toe_kick_setback = self.get_prompt("Toe Kick Setback").get_var("toe_kick_setback")
+        material_thickness = self.get_prompt("Material Thickness").get_var("material_thickness")
+        boolean_overhang = self.get_prompt("Boolean Overhang").get_var("boolean_overhang")
 
         bottom = data_cabinet_parts.add_carcass_part(self)
         bottom.set_name('Bottom')
@@ -158,6 +154,19 @@ class Standard2(bp_types.Assembly):
         left_side.dim_y('depth',[depth])
         left_side.dim_z('-material_thickness',[material_thickness])
 
+        left_notch = data_cabinet_parts.Square_Cutout()
+        self.add_assembly(left_notch)
+        left_notch.assign_boolean(left_side)
+        left_notch.set_name('Left Square Cutout')
+        left_notch.loc_x('-boolean_overhang/2',[boolean_overhang])
+        left_notch.loc_y('depth-boolean_overhang/2',[depth,boolean_overhang])
+        left_notch.loc_z('-boolean_overhang',[boolean_overhang])
+        left_notch.rot_y(value=math.radians(-90))
+        left_notch.dim_x('toe_kick_height+boolean_overhang',[toe_kick_height,boolean_overhang])
+        left_notch.dim_y('toe_kick_setback+boolean_overhang/2',[toe_kick_setback,boolean_overhang])
+        left_notch.dim_z('-material_thickness-boolean_overhang',[material_thickness,boolean_overhang])   
+        kitchen_utils.flip_normals(left_notch)    
+
         right_side = data_cabinet_parts.add_carcass_part(self)
         right_side.obj_bp["IS_RIGHT_SIDE_BP"] = True
         right_side.set_name('Right Side')
@@ -169,6 +178,19 @@ class Standard2(bp_types.Assembly):
         right_side.dim_y('depth',[depth])
         right_side.dim_z('material_thickness',[material_thickness])
         kitchen_utils.flip_normals(right_side)
+
+        right_notch = data_cabinet_parts.Square_Cutout()
+        self.add_assembly(right_notch)
+        right_notch.assign_boolean(right_side)
+        right_notch.set_name('Right Square Cutout')
+        right_notch.loc_x('width+boolean_overhang/2',[width,boolean_overhang])
+        right_notch.loc_y('depth-boolean_overhang/2',[depth,boolean_overhang])
+        right_notch.loc_z('-boolean_overhang',[boolean_overhang])
+        right_notch.rot_y(value=math.radians(-90))
+        right_notch.dim_x('toe_kick_height+boolean_overhang',[toe_kick_height,boolean_overhang])
+        right_notch.dim_y('toe_kick_setback+boolean_overhang/2',[toe_kick_setback,boolean_overhang])
+        right_notch.dim_z('material_thickness+boolean_overhang',[material_thickness,boolean_overhang])   
+        # kitchen_utils.flip_normals(right_notch)    
 
         back = data_cabinet_parts.add_carcass_part(self)
         back.set_name('Back')
@@ -184,7 +206,7 @@ class Standard2(bp_types.Assembly):
         toe_kick = data_cabinet_parts.add_carcass_part(self)
         toe_kick.set_name('Toe Kick')
         toe_kick.loc_x('material_thickness',[material_thickness])
-        toe_kick.loc_y('depth+toe_kick_setback',[depth,toe_kick_setback])
+        toe_kick.loc_y('depth+toe_kick_setback+material_thickness',[depth,toe_kick_setback,material_thickness])
         toe_kick.loc_z(value=0)
         toe_kick.rot_x(value=math.radians(90))
         toe_kick.dim_x('width-(material_thickness*2)',[width,material_thickness])
