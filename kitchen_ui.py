@@ -29,6 +29,8 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
                                                 ('INTERIOR',"Interior","Interior Options"),
                                                 ('SPLITTER',"Openings","Openings Options")])
 
+    drawer_calculator = None
+
     left_side = None
     right_side = None
 
@@ -36,6 +38,7 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
     carcass = None
     countertop = None
     doors = None
+    drawers = None
     interior = None
 
     def update_product_size(self):
@@ -62,9 +65,11 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
 
     def check(self, context):
         self.update_product_size()
-        self.countertop.obj_bp.location = self.countertop.obj_bp.location
-        self.countertop.obj_x.location = self.countertop.obj_x.location
-        self.countertop.obj_y.location = self.countertop.obj_y.location
+        if self.drawer_calculator:
+            self.drawer_calculator.calculate()
+        # self.countertop.obj_bp.location = self.countertop.obj_bp.location
+        # self.countertop.obj_x.location = self.countertop.obj_x.location
+        # self.countertop.obj_y.location = self.countertop.obj_y.location
         self.update_materials(context)
         return True
 
@@ -81,6 +86,9 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
                 self.exterior = bp_types.Assembly(child)                     
             if "IS_COUNTERTOP_BP" in child and child["IS_COUNTERTOP_BP"]:
                 self.countertop = bp_types.Assembly(child)   
+            if "IS_DRAWERS_BP" in child and child["IS_DRAWERS_BP"]:
+                self.drawers = bp_types.Assembly(child)   
+                self.drawer_calculator = self.drawers.get_calculator('Front Height Calculator')
 
         for child in self.carcass.obj_bp.children:
             if "IS_LEFT_SIDE_BP" in child and child["IS_LEFT_SIDE_BP"]:
@@ -175,6 +183,11 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
         ctop_left.draw(layout)  
         ctop_right.draw(layout)         
 
+    def draw_drawer_prompts(self,layout,context):
+        for prompt in self.drawer_calculator.prompts:
+            prompt.draw(layout)
+
+
     def draw(self, context):
         layout = self.layout
         self.draw_product_size(layout,context)
@@ -189,6 +202,10 @@ class KITCHEN_OT_cabinet_prompts(bpy.types.Operator):
         if self.product_tabs == 'CARCASS':
             self.draw_carcass_prompts(prompt_box,context)
             self.draw_countertop_prompts(prompt_box,context)
+
+        if self.product_tabs == 'EXTERIOR':
+            if self.drawer_calculator:
+                self.draw_drawer_prompts(prompt_box,context)
 
 
 def register():

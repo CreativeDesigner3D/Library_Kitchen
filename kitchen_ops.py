@@ -100,6 +100,11 @@ class KITCHEN_OT_place_cabinet(bpy.types.Operator):
         self.refresh_data(False)      
 
     def set_child_properties(self,obj):
+        if "IS_DRAWERS_BP" in obj and obj["IS_DRAWERS_BP"]:
+            drawers = bp_types.Assembly(obj)   
+            drawer_calculator = drawers.get_calculator('Front Height Calculator')
+            drawer_calculator.calculate()
+
         obj["PROMPT_ID"] = "kitchen.cabinet_prompts"   
         if obj.type == 'EMPTY':
             obj.hide_viewport = True    

@@ -15,6 +15,7 @@ def add_front_overlay_prompts(assembly):
     assembly.add_prompt("Bottom Overlay",'DISTANCE',bp_unit.inch(.6875))
     assembly.add_prompt("Left Overlay",'DISTANCE',bp_unit.inch(.6875))
     assembly.add_prompt("Right Overlay",'DISTANCE',bp_unit.inch(.6875))
+    assembly.add_prompt("Vertical Gap",'DISTANCE',bp_unit.inch(.125))
 
 def add_pull_prompts(assembly):
     assembly.add_prompt("Pull Vertical Location",'DISTANCE',bp_unit.inch(1.5))
