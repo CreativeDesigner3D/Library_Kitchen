@@ -1,6 +1,6 @@
 import bpy
 import os
-from .bp_lib.xml import XML
+from .bp_lib import bp_pointer_utils
 
 def get_kitchen_scene_props():
     return bpy.context.scene.kitchen
@@ -61,19 +61,6 @@ def get_pull(category,pull_name):
         for obj in data_to.objects:
             return obj
 
-def assign_materials_to_object(obj):
-    props = get_kitchen_scene_props()
-    for index, pointer in enumerate(obj.material_pointer.slots):
-        if index <= len(obj.material_slots) and pointer.name in props.material_pointers:
-            p = props.material_pointers[pointer.name]
-            slot = obj.material_slots[index]
-            slot.material = get_material(p.category,p.item_name)
-
-def assign_materials_to_assembly(assembly):
-    for child in assembly.obj_bp.children:
-        if child.type == 'MESH':
-            assign_materials_to_object(child)
-
 def get_default_material_pointers():
     pointers = []
     pointers.append(("Wood Core Surfaces","Core","PB Small"))
@@ -89,6 +76,7 @@ def get_default_material_pointers():
     pointers.append(("Drawer Box Edge","Wood Colors","Autumn Leaves"))
     pointers.append(("Pull Finish","Metal","Polished Chrome"))
     pointers.append(("Glass","Misc","Glass"))
+    pointers.append(("TESTTESTT","Misc","Glass"))
     pointers.append(("Molding","Wood Colors","Autumn Leaves"))
     return pointers
 
@@ -100,56 +88,45 @@ def get_default_pull_pointers():
     pointers.append(("Drawer Pulls","Decorative Pulls","Americana Handle"))
     return pointers
 
-def get_xml_path():
-    path = os.path.join(os.path.dirname(__file__),'material_pointers')
+def get_material_pointer_xml_path():
+    path = os.path.join(os.path.dirname(__file__),'pointers')
     return os.path.join(path,"material_pointers.xml")
 
-def write_xml_file():
-    '''
-    This writes the XML file from the current props. 
-    This file gets written everytime a property changes.
-    '''
-    pointer_list = get_default_material_pointers()
-    xml = XML()
-    root = xml.create_tree()
-    for pointer_item in pointer_list:
-        pointer = xml.add_element(root,'MaterialPointer')
-        xml.add_element_with_text(pointer,'Name',pointer_item[0])
-        xml.add_element_with_text(pointer,'Category',pointer_item[1])
-        xml.add_element_with_text(pointer,'Material',pointer_item[2])
-    
-    filepath = get_xml_path()
+def get_pull_pointer_xml_path():
+    path = os.path.join(os.path.dirname(__file__),'pointers')
+    return os.path.join(path,"pull_pointers.xml")
 
-    xml.write(filepath)
+def write_pointer_files():
+    bp_pointer_utils.write_xml_file(get_material_pointer_xml_path(),
+                                    get_default_material_pointers())
+    bp_pointer_utils.write_xml_file(get_pull_pointer_xml_path(),
+                                    get_default_pull_pointers())
 
-    xml.format_xml_file(filepath)
-
-def update_props_from_xml_file():
-    '''
-    This gets read on startup and sets the window manager props
-    '''
-    scene_props = get_kitchen_scene_props()
-
-    if os.path.exists(get_xml_path()):
-        xml = XML()
-        root = xml.read_file(get_xml_path())
-
-        for elm in root.findall("MaterialPointer"):
-            pointer = scene_props.material_pointers.add()
-            items = elm.getchildren()
-            for item in items:
-                if item.tag == 'Name':
-                    pointer.name = item.text
-                if item.tag == 'Category':
-                    pointer.category = item.text
-                if item.tag == 'Material':
-                    pointer.item_name = item.text          
+def update_pointer_properties():
+    props = get_kitchen_scene_props()
+    bp_pointer_utils.update_props_from_xml_file(get_material_pointer_xml_path(),
+                                                props.material_pointers)
+    bp_pointer_utils.update_props_from_xml_file(get_pull_pointer_xml_path(),
+                                                props.pull_pointers)
 
 def add_bevel(assembly):
     for child in assembly.obj_bp.children:
         if child.type == 'MESH':
             bevel = child.modifiers.new('Bevel','BEVEL')    
             bevel.width = .0005            
+
+def assign_materials_to_object(obj):
+    props = get_kitchen_scene_props()
+    for index, pointer in enumerate(obj.material_pointer.slots):
+        if index <= len(obj.material_slots) and pointer.name in props.material_pointers:
+            p = props.material_pointers[pointer.name]
+            slot = obj.material_slots[index]
+            slot.material = get_material(p.category,p.item_name)
+
+def assign_materials_to_assembly(assembly):
+    for child in assembly.obj_bp.children:
+        if child.type == 'MESH':
+            assign_materials_to_object(child)
 
 def update_side_material(assembly,is_finished_end):
     for child in assembly.obj_bp.children:

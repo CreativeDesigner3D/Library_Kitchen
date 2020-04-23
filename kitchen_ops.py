@@ -244,6 +244,21 @@ class KITCHEN_OT_place_cabinet(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class KITCHEN_OT_update_pointers(bpy.types.Operator):
+    bl_idname = "kitchen.update_pointers"
+    bl_label = "Update Scene Materials"
+    
+    def execute(self, context):
+        props = kitchen_utils.get_kitchen_scene_props()
+        for pointer in props.material_pointers:
+            props.material_pointers.remove(0)
+        for pointer in props.pull_pointers:
+            props.pull_pointers.remove(0)   
+        kitchen_utils.write_pointer_files()
+        kitchen_utils.update_pointer_properties()   
+        return {'FINISHED'}
+
+
 class KITCHEN_OT_update_scene_materials(bpy.types.Operator):
     bl_idname = "kitchen.update_scene_materials"
     bl_label = "Update Scene Materials"
@@ -300,7 +315,8 @@ class KITCHEN_OT_disconnect_cabinet_constraint(bpy.types.Operator):
         return {'FINISHED'}
 
 def register():
-    bpy.utils.register_class(KITCHEN_OT_place_cabinet)        
+    bpy.utils.register_class(KITCHEN_OT_place_cabinet)      
+    bpy.utils.register_class(KITCHEN_OT_update_pointers)     
     bpy.utils.register_class(KITCHEN_OT_update_scene_materials)     
     bpy.utils.register_class(KITCHEN_OT_update_material_pointer)   
     bpy.utils.register_class(KITCHEN_OT_update_scene_pulls) 
@@ -308,7 +324,8 @@ def register():
     bpy.utils.register_class(KITCHEN_OT_disconnect_cabinet_constraint)   
 
 def unregister():    
-    bpy.utils.unregister_class(KITCHEN_OT_place_cabinet)        
+    bpy.utils.unregister_class(KITCHEN_OT_place_cabinet)     
+    bpy.utils.unregister_class(KITCHEN_OT_update_pointers)  
     bpy.utils.unregister_class(KITCHEN_OT_update_scene_materials)     
     bpy.utils.unregister_class(KITCHEN_OT_update_material_pointer)      
     bpy.utils.unregister_class(KITCHEN_OT_update_scene_pulls)  

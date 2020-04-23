@@ -35,9 +35,9 @@ def load_library_on_file_load(scene=None):
         bp_utils.load_library_items_from_module(lib,data_cabinets)
 
 @persistent
-def load_material_pointers(scene=None):
-    kitchen_utils.write_xml_file()
-    kitchen_utils.update_props_from_xml_file()
+def load_pointers(scene=None):
+    kitchen_utils.write_pointer_files()
+    kitchen_utils.update_pointer_properties()
 
 def register():
     kitchen_props.register()
@@ -46,7 +46,7 @@ def register():
 
     load_library_on_file_load()
     bpy.app.handlers.load_post.append(load_library_on_file_load)
-    bpy.app.handlers.load_post.append(load_material_pointers)
+    bpy.app.handlers.load_post.append(load_pointers)
 
 def unregister():
     kitchen_props.unregister()
@@ -54,7 +54,7 @@ def unregister():
     kitchen_ops.unregister()
 
     bpy.app.handlers.load_post.remove(load_library_on_file_load)  
-    bpy.app.handlers.load_post.remove(load_material_pointers)  
+    bpy.app.handlers.load_post.remove(load_pointers)  
 
     for i, lib in enumerate(bpy.context.window_manager.bp_lib.script_libraries):
         if lib.name == "Kitchen Library":

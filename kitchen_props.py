@@ -15,14 +15,14 @@ from bpy.props import (
         CollectionProperty,
         EnumProperty,
         )
-from .bp_lib import bp_types, bp_unit, bp_utils
+from .bp_lib import bp_types, bp_unit, bp_utils, bp_pointer_utils
 from . import kitchen_utils
 
 preview_collections = {}
-preview_collections["material_categories"] = bp_utils.create_image_preview_collection()
-preview_collections["material_items"] = bp_utils.create_image_preview_collection()
-preview_collections["pull_categories"] = bp_utils.create_image_preview_collection()
-preview_collections["pull_items"] = bp_utils.create_image_preview_collection()
+preview_collections["material_categories"] = bp_pointer_utils.create_image_preview_collection()
+preview_collections["material_items"] = bp_pointer_utils.create_image_preview_collection()
+preview_collections["pull_categories"] = bp_pointer_utils.create_image_preview_collection()
+preview_collections["pull_items"] = bp_pointer_utils.create_image_preview_collection()
 
 def enum_material_categories(self,context):
     if context is None:
@@ -30,7 +30,7 @@ def enum_material_categories(self,context):
     
     icon_dir = kitchen_utils.get_material_path()
     pcoll = preview_collections["material_categories"]
-    return bp_utils.get_folder_enum_previews(icon_dir,pcoll)
+    return bp_pointer_utils.get_folder_enum_previews(icon_dir,pcoll)
 
 def enum_material_names(self,context):
     if context is None:
@@ -38,12 +38,12 @@ def enum_material_names(self,context):
     
     icon_dir = os.path.join(kitchen_utils.get_material_path(),self.material_category)
     pcoll = preview_collections["material_items"]
-    return bp_utils.get_image_enum_previews(icon_dir,pcoll)
+    return bp_pointer_utils.get_image_enum_previews(icon_dir,pcoll)
 
 def update_material_category(self,context):
     if preview_collections["material_items"]:
         bpy.utils.previews.remove(preview_collections["material_items"])
-        preview_collections["material_items"] = bp_utils.create_image_preview_collection()     
+        preview_collections["material_items"] = bp_pointer_utils.create_image_preview_collection()     
         
     enum_material_names(self,context)
 
@@ -53,7 +53,7 @@ def enum_pull_categories(self,context):
     
     icon_dir = kitchen_utils.get_pull_path()
     pcoll = preview_collections["pull_categories"]
-    return bp_utils.get_folder_enum_previews(icon_dir,pcoll)
+    return bp_pointer_utils.get_folder_enum_previews(icon_dir,pcoll)
 
 def enum_pull_names(self,context):
     if context is None:
@@ -61,25 +61,20 @@ def enum_pull_names(self,context):
     
     icon_dir = os.path.join(kitchen_utils.get_pull_path(),self.pull_category)
     pcoll = preview_collections["pull_items"]
-    return bp_utils.get_image_enum_previews(icon_dir,pcoll)
+    return bp_pointer_utils.get_image_enum_previews(icon_dir,pcoll)
 
 def update_pull_category(self,context):
     if preview_collections["pull_items"]:
         bpy.utils.previews.remove(preview_collections["pull_items"])
-        preview_collections["pull_items"] = bp_utils.create_image_preview_collection()     
+        preview_collections["pull_items"] = bp_pointer_utils.create_image_preview_collection()     
         
     enum_pull_names(self,context)
 
-# def clear_material_categories(self,context):
-#     if preview_collections["material_categories"]:
-#         bpy.utils.previews.remove(preview_collections["material_categories"])
-#         preview_collections["material_categories"] = bp_utils.create_image_preview_collection()
 
-#     enum_material_categories(self,context)
-
-class Kitchen_Pointer(PropertyGroup):
+class Pointer(PropertyGroup):
     category: bpy.props.StringProperty(name="Category")
     item_name: bpy.props.StringProperty(name="Item Name")
+
 
 class Kitchen_Scene_Props(PropertyGroup):
     kitchen_tabs: EnumProperty(name="Kitchen Tabs",
@@ -210,8 +205,8 @@ class Kitchen_Scene_Props(PropertyGroup):
                                                       default=bp_unit.inch(6.0),
                                                       unit='LENGTH')
 
-    material_pointers: bpy.props.CollectionProperty(name="Material Pointers",type=Kitchen_Pointer)
-    pull_pointers: bpy.props.CollectionProperty(name="Pull Pointers",type=Kitchen_Pointer)
+    material_pointers: bpy.props.CollectionProperty(name="Material Pointers",type=Pointer)
+    pull_pointers: bpy.props.CollectionProperty(name="Pull Pointers",type=Pointer)
 
     material_category: bpy.props.EnumProperty(name="Material Category",items=enum_material_categories,update=update_material_category)
     material_name: bpy.props.EnumProperty(name="Material Name",items=enum_material_names)
@@ -262,10 +257,10 @@ class Kitchen_Scene_Props(PropertyGroup):
 
         box = right_col.box()
         col = box.column(align=True)
-        for mat in self.pull_pointers:
+        for pull in self.pull_pointers:
             row = col.row()
-            row.operator('kitchen.update_pull_pointer',text=mat.name,icon='FORWARD').pointer_name = mat.name
-            row.label(text=mat.category + " - " + mat.material_name,icon='MATERIAL')
+            row.operator('kitchen.update_pull_pointer',text=pull.name,icon='FORWARD').pointer_name = pull.name
+            row.label(text=pull.category + " - " + pull.item_name,icon='MODIFIER_ON')
 
     def draw_cabinet_sizes(self,layout):
         col = layout.column(align=True)
@@ -386,7 +381,7 @@ class Kitchen_Scene_Props(PropertyGroup):
             self.draw_hardware(box)
 
         if self.kitchen_tabs == 'TOOLS':
-            pass        
+            box.operator('kitchen.update_pointers')        
 
 
     @classmethod
@@ -402,9 +397,9 @@ class Kitchen_Scene_Props(PropertyGroup):
         del bpy.types.Scene.kitchen
 
 def register():
-    bpy.utils.register_class(Kitchen_Pointer)  
+    bpy.utils.register_class(Pointer)  
     bpy.utils.register_class(Kitchen_Scene_Props)  
 
 def unregister():
-    bpy.utils.unregister_class(Kitchen_Pointer)   
+    bpy.utils.unregister_class(Pointer)   
     bpy.utils.unregister_class(Kitchen_Scene_Props)        
