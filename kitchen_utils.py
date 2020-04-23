@@ -76,7 +76,6 @@ def get_default_material_pointers():
     pointers.append(("Drawer Box Edge","Wood Colors","Autumn Leaves"))
     pointers.append(("Pull Finish","Metal","Polished Chrome"))
     pointers.append(("Glass","Misc","Glass"))
-    pointers.append(("TESTTESTT","Misc","Glass"))
     pointers.append(("Molding","Wood Colors","Autumn Leaves"))
     return pointers
 
