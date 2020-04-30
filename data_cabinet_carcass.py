@@ -6,10 +6,7 @@ from . import common_prompts
 
 from os import path
 
-class Standard(bp_types.Assembly):
-    category_name = "Carcass"
-    prompt_id = "room.part_prompts"
-    placement_id = "room.draw_multiple_walls"
+class Base_Simple(bp_types.Assembly):
 
     def draw(self):
         props = kitchen_utils.get_kitchen_scene_props()
@@ -98,10 +95,8 @@ class Standard(bp_types.Assembly):
         toe_kick.dim_y('toe_kick_height',[toe_kick_height])
         toe_kick.dim_z('material_thickness',[material_thickness])
 
-class Standard2(bp_types.Assembly):
-    category_name = "Carcass"
-    prompt_id = "room.part_prompts"
-    placement_id = "room.draw_multiple_walls"
+class Base_Advanced(bp_types.Assembly):
+    carcass_type = 'Base'
 
     def draw(self):
         props = kitchen_utils.get_kitchen_scene_props()
